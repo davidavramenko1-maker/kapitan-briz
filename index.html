@@ -24,7 +24,7 @@
     </div>
     <div class="hud-sub"><span class="hud-pill ghost" id="meadow"></span><span class="hud-pill ghost" id="wind" hidden></span><span class="hud-pill ghost" id="rescue" hidden></span><span class="hud-pill ghost" id="tired" hidden></span><span class="hud-pill ghost" id="carry" hidden>Подарок упал — подбери!</span></div>
   </div>
-  <p class="hint" id="hint" hidden>Герой летит сам. Держи палец/мышь на экране — он летит туда (отпустишь — через 2 с снова автопилот). Два пальца / правая кнопка — камера (и ←→↑↓ с клавиатуры), колесо/щипок — зум, T — идти пешком (WASD/джойстик/палец, Space — прыжок). Space/X — удар, G — схватить и бросить туда, куда смотрит камера</p>
+  <p class="hint" id="hint" hidden>Держи палец/мышь — герой летит туда · 2 пальца, правая кнопка или ←→ — камера · T — пешком · Space/X — удар · G — схватить/бросить</p>
   <button class="fire-btn" id="fireBtn" hidden><span>⚡</span>Удар</button>
   <button class="fire-btn grab-btn" id="grabBtn" hidden><span>✊</span><b id="grabTxt">Схватить</b></button>
   <div class="scrim" id="menu">
@@ -74,9 +74,11 @@
     <section class="panel shop-panel">
       <p class="eyebrow">Магазин · только звёзды, без настоящих денег</p><h1>Магазин</h1>
       <p class="lede">У тебя <strong id="shopStars">0</strong> ⭐. Звёзды дают за подарки, прогнанных ведьм, дронов и босса.</p>
-      <div class="shop-grid"><canvas id="pv" width="200" height="220"></canvas><div><h2>Суперсилы и улучшения</h2><div id="shopPowers"></div></div></div>
-      <h2>Костюмы</h2><div id="shopSkins" class="skins"></div>
-      <div class="actions"><button class="btn btn-primary" id="shopClose">Готово</button></div>
+      <div class="shop-tabs" role="tablist"><button type="button" class="tab on" data-tab="skins">👕 Скины</button><button type="button" class="tab" data-tab="powers">⚡ Суперсилы</button></div>
+      <div class="shop-grid"><canvas id="pv" width="200" height="220"></canvas>
+        <div><div id="tabSkins"><h2>Скины героя</h2><div id="shopSkins" class="skins"></div></div>
+        <div id="tabPowers" hidden><h2>Суперсилы и улучшения</h2><div id="shopPowers"></div></div></div></div>
+      <div class="actions"><button type="button" class="btn btn-primary" id="shopClose">Готово</button></div>
     </section>
   </div>
   <div class="boss-hud" id="bossHud" hidden><b id="bossName"></b><span id="bossNum"></span><i><b id="bossFill"></b></i></div>

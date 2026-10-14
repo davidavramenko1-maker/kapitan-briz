@@ -63,3 +63,12 @@ html,body{background:#2a6f8f}
 .joy-knob{position:absolute;left:50%;top:50%;width:3.4rem;height:3.4rem;margin:-1.7rem;border-radius:50%;background:#fff8ee;box-shadow:0 6px 14px #24322855;pointer-events:none}
 .jump-btn{position:absolute;left:9.4rem;bottom:0;width:3.8rem;height:3.8rem;border:none;border-radius:50%;background:#fff8ee;font:inherit;font-size:.65rem;box-shadow:0 6px 14px #24322855}
 @media (max-width:560px){.powers{bottom:8.6rem}}
+
+html,body{overflow:hidden;position:fixed;inset:0;overscroll-behavior:none}
+#shop{place-items:start center;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:.6rem}
+#shop .shop-panel{max-height:none;margin:auto 0;touch-action:pan-y}
+.shop-tabs{display:flex;gap:.4rem;justify-content:center;margin:.3rem 0 .6rem}
+.tab{border:none;border-radius:999px;padding:.55rem 1.1rem;font:inherit;background:#eef7fb;color:#243228;cursor:pointer;min-height:2.75rem}.tab.on{background:#2a6f8f;color:#fff}
+.skins{grid-template-columns:1fr}
+#shop button{touch-action:manipulation}
+.hint{left:7rem;right:13rem;font-size:.85rem;border-radius:1rem}@media (max-width:700px){.hint{left:.5rem;right:.5rem;bottom:9rem}}
