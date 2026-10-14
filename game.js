@@ -545,7 +545,7 @@ function usePower(id){if(S.phase!=='play'||S.tired>0||!S.owned.has(id)||(S.cd[id
 function stepPowers(dt){for(const k in S.cd)S.cd[k]=Math.max(0,S.cd[k]-dt);for(const k in S.act)S.act[k]=Math.max(0,S.act[k]-dt);
   shieldM.visible=S.act.shield>0;if(shieldM.visible)shieldM.scale.setScalar(1+Math.sin(time*8)*.04);
   laserM.visible=S.act.laser>0&&S.phase==='play';
-  if(laserM.visible){const d=camDir(),o=P.clone().add(new THREE.Vector3(0,2.3,0));laserM.position.copy(o);laserM.lookAt(o.clone().add(d));laserM.scale.set(1,1,70);
+  if(laserM.visible){let d=camDir();const o=P.clone().add(new THREE.Vector3(0,2.3,0));{let bd=.8;for(const w of witches){if(w.st===2)continue;const t=w.g.position.clone().add(new THREE.Vector3(0,1,0)).sub(o),l=t.length();if(l>70)continue;const k=t.normalize().dot(d);if(k>bd){bd=k;d=t}}}laserM.position.copy(o);laserM.lookAt(o.clone().add(d));laserM.scale.set(1,1,70);
     laserTick-=dt;if(laserTick<=0){laserTick=.25;for(const w of witches){if(w.st===2)continue;const c=w.g.position.clone().add(new THREE.Vector3(0,1,0)),t=c.clone().sub(o).dot(d);if(t<0||t>70)continue;
       if(o.clone().addScaledVector(d,t).distanceTo(c)<(w.kind==='boss'?3.5:2.2))hit(w,1,d,'жжж!','#d94a3a')}}}
   if(S.act.speed>0&&Math.random()<.5)sparks(P,['#ffffff','#bfeaff'],1,2)}
@@ -637,5 +637,5 @@ window.__hero={S,get witches(){return witches.length},get held(){return held&&he
   face(x,z){camYaw=Math.atan2(P.x-x,P.z-z);camPitch=.3;camIdle=-99},findCandidate,nearest(kind){let b=null,bd=1e9;for(const p of props){if(kind&&p.kind!==kind)continue;const d=p.g.position.distanceTo(P);if(d<bd){bd=d;b=p}}return b&&{x:b.g.position.x,z:b.g.position.z,d:bd}},
   faceWitch(){const w=witches.find(w=>w.st===0);if(!w)return false;camYaw=Math.atan2(P.x-w.g.position.x,P.z-w.g.position.z);camPitch=Math.max(-.05,Math.min(1.3,Math.atan2(P.y-w.g.position.y,Math.hypot(P.x-w.g.position.x,P.z-w.g.position.z))+.15));camIdle=-99;return true},
   hurt,get hp(){return S.hp},get villains(){return witches.map(w=>w.kind+':'+w.hp)},
-  power:usePower,shop:openShop,get stars(){return S.stars},set stars(v){S.stars=v;ui()},
+  spawnBoss(){waveN=2;S.round=Math.max(3,S.round);spawnWave()},power:usePower,shop:openShop,get stars(){return S.stars},set stars(v){S.stars=v;ui()},
   setCam(y,p,d){camYaw=y;camPitch=p;camDist=d;camIdle=-99}};
