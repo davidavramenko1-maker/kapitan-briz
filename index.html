@@ -22,9 +22,9 @@
       <button class="icon-btn" id="muteBtn" aria-label="Звук">🔊</button>
       <button class="icon-btn" id="pauseBtn" aria-label="Пауза">⏸</button>
     </div>
-    <div class="hud-sub"><span class="hud-pill ghost" id="meadow"></span><span class="hud-pill ghost" id="wind" hidden></span><span class="hud-pill ghost" id="tired" hidden></span><span class="hud-pill ghost" id="carry" hidden>Подарок упал — подбери!</span></div>
+    <div class="hud-sub"><span class="hud-pill ghost" id="meadow"></span><span class="hud-pill ghost" id="wind" hidden></span><span class="hud-pill ghost" id="rescue" hidden></span><span class="hud-pill ghost" id="tired" hidden></span><span class="hud-pill ghost" id="carry" hidden>Подарок упал — подбери!</span></div>
   </div>
-  <p class="hint" id="hint" hidden>Герой летит сам. Тяни / ←→↑↓ — камера, колесо/щипок — зум, Space — удар, G — схватить и бросить туда, куда смотрит камера</p>
+  <p class="hint" id="hint" hidden>Герой летит сам. Держи палец/мышь на экране — он летит туда (отпустишь — через 2 с снова автопилот). Два пальца / правая кнопка — камера (и ←→↑↓ с клавиатуры), колесо/щипок — зум, T — идти пешком (WASD/джойстик/палец, Space — прыжок). Space/X — удар, G — схватить и бросить туда, куда смотрит камера</p>
   <button class="fire-btn" id="fireBtn" hidden><span>⚡</span>Удар</button>
   <button class="fire-btn grab-btn" id="grabBtn" hidden><span>✊</span><b id="grabTxt">Схватить</b></button>
   <div class="scrim" id="menu">
@@ -33,10 +33,10 @@
       <h1>Капитан Бриз</h1>
       <p class="lede">Приморский городок ждёт подарков! Капитан Бриз сам летит к пяти цветным домикам — ты управляешь камерой, прогоняешь ведьм и можешь двигать всё вокруг.</p>
       <div class="steps">
-        <div class="step"><span class="ico">🎥</span>Крути камеру пальцем или стрелками</div>
+        <div class="step"><span class="ico">👆</span>Держи палец — герой летит туда; два пальца или ←→ — камера</div>
         <div class="step"><span class="ico">🦸</span>Герой летит сам к домикам</div>
         <div class="step"><span class="ico">✊</span>Хватай машины, лавки, деревья</div>
-        <div class="step"><span class="ico">⚡</span>Прогоняй ведьм, дронов и босса — следи за полосками сил</div>
+        <div class="step"><span class="ico">⚡</span>В конце района — босс! Спасай жителей и здания</div>
       </div>
       <p class="stats" id="stats" hidden></p>
       <div class="actions">
@@ -60,8 +60,8 @@
   </div>
   <div class="scrim" id="clear" hidden>
     <section class="panel">
-      <p class="eyebrow" id="clearMeadow"></p><h1>Все подарки на месте</h1>
-      <p class="lede">Домики светятся. Можно лететь в следующий район — там другой ветер, другие улицы и больше ведьм.</p>
+      <p class="eyebrow" id="clearMeadow"></p><h1>Город спасён!</h1>
+      <p class="lede"><strong id="clearPct"></strong><br>Подарки доставлены, злодей повержен. Дальше — следующий район: другой ветер, больше ведьм и новый босс.</p>
       <p class="stats" id="clearStats"></p>
       <div class="actions">
         <button class="btn btn-primary" id="nextBtn">Следующий район</button>
@@ -79,6 +79,10 @@
       <div class="actions"><button class="btn btn-primary" id="shopClose">Готово</button></div>
     </section>
   </div>
+  <div class="boss-hud" id="bossHud" hidden><b id="bossName"></b><span id="bossNum"></span><i><b id="bossFill"></b></i></div>
+  <div class="boss-banner" id="bossBanner" hidden></div>
+  <button class="fire-btn walk-btn" id="walkBtn" hidden>🚶 Идти</button>
+  <div class="joy" id="joy" hidden><div class="joy-knob" id="joyKnob"></div><button class="jump-btn" id="jumpBtn">⤒<br>Прыжок</button></div>
   <div id="floaters"></div>
 </div>
 <script type="module" src="./game.js"></script>
