@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<meta name="theme-color" content="#2a6f8f"/>
+<title>Капитан Бриз — Приморск</title>
+<link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
+<link rel="stylesheet" href="./style.css"/>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
+</head>
+<body>
+<div class="game-root" id="root">
+  <canvas id="c" aria-hidden="true"></canvas>
+  <div class="catcher" id="catcher" hidden></div>
+  <div class="hud" id="hud" hidden>
+    <div class="hud-pill"><span class="ico">🎁</span><span><span class="kicker">Доставлено</span><strong id="score">0 / 5</strong></span></div>
+    <div class="hud-pill"><span class="ico">⭐</span><span><span class="kicker">Звёзды</span><strong id="stars">0</strong></span></div>
+    <div class="hud-pill" id="hpPill"><span class="ico">❤️</span><span><span class="kicker">Силы героя</span><strong id="hp">100</strong><i class="hpbar"><b id="hpFill"></b></i></span></div>
+    <div class="hud-pill" id="chasedPill"><span class="ico">⚡</span><span><span class="kicker">Прогнано ведьм</span><strong id="chased">0</strong></span></div>
+    <div class="hud-actions">
+      <button class="icon-btn" id="muteBtn" aria-label="Звук">🔊</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Пауза">⏸</button>
+    </div>
+    <div class="hud-sub"><span class="hud-pill ghost" id="meadow"></span><span class="hud-pill ghost" id="wind" hidden></span><span class="hud-pill ghost" id="tired" hidden></span><span class="hud-pill ghost" id="carry" hidden>Подарок упал — подбери!</span></div>
+  </div>
+  <p class="hint" id="hint" hidden>Герой летит сам. Тяни / ←→↑↓ — камера, колесо/щипок — зум, Space — удар, G — схватить и бросить туда, куда смотрит камера</p>
+  <button class="fire-btn" id="fireBtn" hidden><span>⚡</span>Удар</button>
+  <button class="fire-btn grab-btn" id="grabBtn" hidden><span>✊</span><b id="grabTxt">Схватить</b></button>
+  <div class="scrim" id="menu">
+    <section class="panel">
+      <p class="eyebrow">Приморск · 3D</p>
+      <h1>Капитан Бриз</h1>
+      <p class="lede">Приморский городок ждёт подарков! Капитан Бриз сам летит к пяти цветным домикам — ты управляешь камерой, прогоняешь ведьм и можешь двигать всё вокруг.</p>
+      <div class="steps">
+        <div class="step"><span class="ico">🎥</span>Крути камеру пальцем или стрелками</div>
+        <div class="step"><span class="ico">🦸</span>Герой летит сам к домикам</div>
+        <div class="step"><span class="ico">✊</span>Хватай машины, лавки, деревья</div>
+        <div class="step"><span class="ico">⚡</span>Прогоняй ведьм, дронов и босса — следи за полосками сил</div>
+      </div>
+      <p class="stats" id="stats" hidden></p>
+      <div class="actions">
+        <button class="btn btn-primary" id="startBtn">▶ Полетели</button>
+        <button class="btn btn-quiet" id="shopBtn">🛒 Магазин</button>
+        <button class="btn btn-quiet" id="muteBtn2">Звук включён</button>
+      </div>
+    </section>
+  </div>
+  <div class="scrim" id="pause" hidden>
+    <section class="panel">
+      <p class="eyebrow">Пауза</p><h1>Капитан Бриз ждёт</h1>
+      <p class="lede" id="pauseText"></p>
+      <div class="actions">
+        <button class="btn btn-primary" id="resumeBtn">▶ Дальше</button>
+        <button class="btn btn-quiet" id="shopBtn2">🛒 Магазин</button>
+        <button class="btn btn-quiet" id="restartBtn">Сначала этот район</button>
+        <button class="btn btn-quiet" id="menuBtn">В меню</button>
+      </div>
+    </section>
+  </div>
+  <div class="scrim" id="clear" hidden>
+    <section class="panel">
+      <p class="eyebrow" id="clearMeadow"></p><h1>Все подарки на месте</h1>
+      <p class="lede">Домики светятся. Можно лететь в следующий район — там другой ветер, другие улицы и больше ведьм.</p>
+      <p class="stats" id="clearStats"></p>
+      <div class="actions">
+        <button class="btn btn-primary" id="nextBtn">Следующий район</button>
+        <button class="btn btn-quiet" id="menuBtn2">В меню</button>
+      </div>
+    </section>
+  </div>
+  <div class="powers" id="powers" hidden></div>
+  <div class="scrim" id="shop" hidden>
+    <section class="panel shop-panel">
+      <p class="eyebrow">Магазин · только звёзды, без настоящих денег</p><h1>Магазин</h1>
+      <p class="lede">У тебя <strong id="shopStars">0</strong> ⭐. Звёзды дают за подарки, прогнанных ведьм, дронов и босса.</p>
+      <div class="shop-grid"><canvas id="pv" width="200" height="220"></canvas><div><h2>Суперсилы и улучшения</h2><div id="shopPowers"></div></div></div>
+      <h2>Костюмы</h2><div id="shopSkins" class="skins"></div>
+      <div class="actions"><button class="btn btn-primary" id="shopClose">Готово</button></div>
+    </section>
+  </div>
+  <div id="floaters"></div>
+</div>
+<script type="module" src="./game.js"></script>
+</body>
+</html>
