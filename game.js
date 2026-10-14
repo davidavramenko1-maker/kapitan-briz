@@ -823,10 +823,10 @@ const catcher=$('catcher'),ptrs=new Map(),ray=new THREE.Raycaster();let lastTap=
 function ndc(e){return new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)}
 function pickProp(e){ray.setFromCamera(ndc(e),camera);const hits=ray.intersectObjects(props.filter(p=>!p.held&&p.g.position.distanceTo(P)<45).map(p=>p.g),true);
   if(!hits.length)return null;let o=hits[0].object;while(o&&!props.some(p=>p.g===o))o=o.parent;return props.find(p=>p.g===o)}
-catcher.addEventListener('pointerdown',e=>{catcher.setPointerCapture(e.pointerId);snd.unlock();const po={x:e.clientX,y:e.clientY,orbit:e.button===2};ptrs.set(e.pointerId,po);
+catcher.addEventListener('pointerdown',e=>{catcher.setPointerCapture(e.pointerId);snd.unlock();const po={x:e.clientX,y:e.clientY,orbit:e.button===2||e.clientX>innerWidth/2};ptrs.set(e.pointerId,po);
   if(ptrs.size===2){dragProp=null;if(steer){steer=null;manualT=2}const [a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);dist0=camDist;return}
-  if(po.orbit)return;const n=performance.now();if(n-lastTap<300){fire();lastTap=0}else lastTap=n;
-  const p=pickProp(e);if(!p){steer={id:e.pointerId,x:e.clientX,y:e.clientY};hideHint()}if(p){dragProp={p,y:Math.max(p.g.position.y,heightAt(p.g.position.x,p.g.position.z)+p.half)+1.2,last:p.g.position.clone(),v:new THREE.Vector3()};p.rest=false;snd.grab();hideHint()}});
+  const n=performance.now();if(n-lastTap<300){fire();lastTap=0}else lastTap=n;
+  const p=e.button===2?null:pickProp(e);if(p)po.orbit=false;if(po.orbit)return;if(!p){steer={id:e.pointerId,x:e.clientX,y:e.clientY};hideHint()}if(p){dragProp={p,y:Math.max(p.g.position.y,heightAt(p.g.position.x,p.g.position.z)+p.half)+1.2,last:p.g.position.clone(),v:new THREE.Vector3()};p.rest=false;snd.grab();hideHint()}});
 catcher.addEventListener('pointermove',e=>{const o=ptrs.get(e.pointerId);if(!o)return;const dx=e.clientX-o.x,dy=e.clientY-o.y;o.x=e.clientX;o.y=e.clientY;
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];camDist=clampD(dist0*pinch0/Math.max(20,Math.hypot(a.x-b.x,a.y-b.y)));camYaw-=dx*.003;camPitch=clampP(camPitch+dy*.002);camIdle=0;return}
   if(steer&&steer.id===e.pointerId){steer.x=e.clientX;steer.y=e.clientY;return}
@@ -858,6 +858,6 @@ window.__hero={S,get witches(){return witches.length},get held(){return held&&he
   spawnBoss(){waveN=2;S.round=Math.max(3,S.round);spawnWave()},power:usePower,shop:openShop,get stars(){return S.stars},set stars(v){S.stars=v;ui()},
   steerAt(x,y){steer=x==null?null:{id:-1,x,y};if(x==null)manualT=2},get manual(){return !!steer||manualT>0},
   get traffic(){return traffic.length},get roamer(){return roamer&&{hp:roamer.hp,max:roamer.max,lvl:S.roamLvl}},callRoamer(){S.roamT=0},beatRoamer(){if(roamer)hit(roamer,9999,new THREE.Vector3(1,0,0),'удар','#d94a3a')},carPos(){const p=traffic[0];return p&&{x:p.g.position.x,z:p.g.position.z}},
-  startBoss,toggleWalk,get boss(){return bossW&&{k:bossW.kind,hp:bossW.hp,x:bossW.g.position.x,y:bossW.g.position.y,z:bossW.g.position.z}},get rescue(){return rescuePct()},get citizens(){return citizens.length},get cheering(){return citizens.filter(c=>c.cheer>0).length},get scared(){return citizens.filter(c=>c.scared).length},
+  get cam(){return camYaw},startBoss,toggleWalk,get boss(){return bossW&&{k:bossW.kind,hp:bossW.hp,x:bossW.g.position.x,y:bossW.g.position.y,z:bossW.g.position.z}},get rescue(){return rescuePct()},get citizens(){return citizens.length},get cheering(){return citizens.filter(c=>c.cheer>0).length},get scared(){return citizens.filter(c=>c.scared).length},
   killBoss(){if(bossW)hit(bossW,9999,new THREE.Vector3(0,1,0),'удар','#d94a3a')},faceBoss(){if(!bossW)return;const p=bossW.g.position;camYaw=Math.atan2(P.x-p.x,P.z-p.z)+.35;camPitch=.15;camDist=34;camIdle=-99},
   setCam(y,p,d){camYaw=y;camPitch=p;camDist=d;camIdle=-99}};
