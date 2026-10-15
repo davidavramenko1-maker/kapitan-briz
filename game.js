@@ -87,10 +87,10 @@ const SKINS=[
   {name:'Полночь',d:'тёмный, фиолетовый плащ, неон',suit:'#2a2438',suit2:'#141020',cape:'#7a5ab8',gold:'#4ad0ff',price:35},
   {name:'Заря',d:'белый с оранжевым',suit:'#f4efe6',suit2:'#c8b8a8',cape:'#ff8a3a',gold:'#d94a3a',price:40}];
 const POWERS=[
-  {id:'ice',key:'1',ico:'❄️',name:'Ледяное дыхание',short:'Лёд',d:'замораживает злодеев перед камерой на 4 с (−1)',price:30,cd:7},
-  {id:'laser',key:'2',ico:'🔴',name:'Лазерный взгляд',short:'Лазер',d:'луч туда, куда смотрит камера (−1 каждые 0,25 с)',price:45,cd:6,dur:1.4},
-  {id:'speed',key:'3',ico:'💨',name:'Суперскорость',short:'Скорость',d:'вдвое быстрее 5 с, таранит злодеев (−2)',price:25,cd:11,dur:5},
-  {id:'shield',key:'4',ico:'🛡️',name:'Щит',short:'Щит',d:'6 с неуязвимости, отталкивает злодеев (−1)',price:35,cd:13,dur:6}];
+  {id:'ice',key:'1',ico:'❄️',name:'Ледяное дыхание',short:'Лёд',d:'заморозка злодеев перед камерой на 4 с',price:30,cd:7},
+  {id:'laser',key:'2',ico:'🔴',name:'Лазерный взгляд',short:'Лазер',d:'луч туда, куда смотрит камера, 1,4 с',price:45,cd:6,dur:1.4},
+  {id:'speed',key:'3',ico:'💨',name:'Суперскорость',short:'Скорость',d:'вдвое быстрее 5 с, таран злодеев',price:25,cd:11,dur:5},
+  {id:'shield',key:'4',ico:'🛡️',name:'Щит',short:'Щит',d:'6 с неуязвимости, отталкивает злодеев и отражает снаряды',price:35,cd:13,dur:6}];
 const UPS=[{id:'blast',ico:'⚡',name:'Сила удара',d:'+1 к урону удара',prices:[20,35,50]},{id:'hp',ico:'❤️',name:'Здоровье',d:'+25 к силам героя',prices:[20,35,50]}];
 function makeHero(sk=SKINS[0]){const SUIT=sk.suit,SUIT2=sk.suit2,CAPE=sk.cape,GOLD=sk.gold;
   const g=new THREE.Group(),body=new THREE.Group();g.add(body);
@@ -153,7 +153,7 @@ function makeBar(numeric,w=2.6){const cv=document.createElement('canvas');cv.wid
 function makeDrone(){const g=new THREE.Group();g.add(mesh(box,'#2f3a44',1.4,.5,1.4));g.add(mesh(sphere,M('#ff3a3a',{emissive:'#ff2020',emissiveIntensity:1.5}),.25,.2,.2,0,-.1,.72,false));
   for(const sx of[-1,1])for(const sz of[-1,1]){g.add(mesh(box,'#4a5560',.9,.1,.12,sx*.6,.15,sz*.6));const r=mesh(cyl,'#c8ccd2',.55,.04,.55,sx*1,.3,sz*1);r.userData.rotor=1;g.add(r)}
   g.scale.setScalar(1.3);return g}
-const VIL={witch:{hp:1,dmg:15,h:3.8,num:false},drone:{hp:2,dmg:10,h:2,num:false},boss:{hp:8,dmg:25,h:7.5,num:true}};
+const VIL={witch:{hp:2,dmg:15,h:3.8,num:false},drone:{hp:3,dmg:10,h:2,num:false},boss:{hp:14,dmg:25,h:7.5,num:true}};
 function makeVillain(kind){let g;if(kind==='lex')g=makeLex();else if(kind==='mozg')g=makeMozg();else if(kind==='grom')g=makeGrom();else if(kind==='drone')g=makeDrone();else{g=makeWitch();if(kind==='boss'){g.scale.setScalar(2.3);const cr=mesh(cone,GOLD,.35,.5,.35,0,3.25,-.2);g.add(cr)}}
   const ice=new THREE.Mesh(sphere,new THREE.MeshStandardMaterial({color:'#bfeaff',transparent:true,opacity:.55,roughness:.1}));ice.scale.set(1.3,1.8,1.3);ice.position.y=1;ice.visible=false;g.add(ice);
   const d=VIL[kind];return{ice,frozen:0,g,kind,hp:d.hp,max:d.hp,dmg:d.dmg,bh:d.h,hr:{boss:4.5,lex:6,mozg:6.5,grom:7}[kind]||2.8,sh:2+Math.random()*3,bar:makeBar(d.num,{boss:4.5,lex:7,mozg:7,grom:7}[kind]||2.4)}}
@@ -420,9 +420,12 @@ function spawnWave(){const n=Math.min(10,S.round-1+Math.floor(waveN/2)),sp=waveS
     witches.push(Object.assign(vl,{v:new THREE.Vector3(-side*sp,0,0),st:0,t:0,ph:Math.random()*6,spin:0}))});
   if(kinds.includes('boss'))floater('Главная ведьма!',P.clone().add(new THREE.Vector3(0,4,0)),'#7a5ab8');
   waveN++;waveT=Math.max(3,9-S.round*.45)}
-function hit(w,dmg,v,word,col){w.hp-=dmg;if(w.hp<=0){knock(w,v,word,col);return}
-  if(w.big){w.flash=.2;snd.bonk();const c=w.g.position.clone().add(new THREE.Vector3(0,3,0));sparks(c,['#4ad0ff','#ffd27a'],8,6);floater(word+' −'+dmg,c,'#d94a3a');if(w.kind==='mozg'&&steal)cancelSteal(true);return}
-  w.v.copy(v).setY(0).normalize().multiplyScalar(16);w.st=1;w.t=0;snd.bonk();const c=w.g.position.clone().add(new THREE.Vector3(0,1,0));sparks(c,['#4ad0ff','#ffd27a'],8,6);floater('-'+dmg,c,'#d94a3a')}
+const B=()=>1+S.up.blast;
+const DMG={blast:()=>B(),throw:m=>Math.round(2*B()*Math.max(1,m/2)),ice:()=>3*B(),laser:()=>2*B(),speed:()=>5*B(),shield:()=>2*B()};
+const DCOL={blast:'#1f7fd0',throw:'#8a5a2a',ice:'#2ab8e8',laser:'#e0302a',speed:'#ff7a1a',shield:'#7a5ab8',reflect:'#a040d0'};
+function hit(w,dmg,v,word,col){w.hp-=dmg;floater(word+' −'+dmg,w.g.position.clone().add(new THREE.Vector3(0,w.big?5:2.6,0)),col);if(w.hp<=0){knock(w,v,word,col);return}
+  if(w.big){w.flash=.2;snd.bonk();const c=w.g.position.clone().add(new THREE.Vector3(0,3,0));sparks(c,[col,'#ffd27a'],8,6);if(w.kind==='mozg'&&steal)cancelSteal(true);return}
+  w.v.copy(v).setY(0).normalize().multiplyScalar(16);w.st=1;w.t=0;snd.bonk();const c=w.g.position.clone().add(new THREE.Vector3(0,1,0));sparks(c,[col,'#ffd27a'],8,6)}
 function hurt(d,label){if(S.tired>0||S.phase!=='play')return;if(S.act.shield>0)return;S.hp=Math.max(0,S.hp-d);S.hurtT=0;floater((label?label+' ':'')+'−'+d,P.clone().add(new THREE.Vector3(0,3.4,0)),'#d94a3a');sparks(P.clone().add(new THREE.Vector3(0,1,0)),['#ff6b5a','#ffffff'],10,6);
   if(S.hp<=0){S.tired=3;if(held){held.held=false;held.rest=false;held=null}for(const w of witches)if(w.st===0){w.st=1;w.t=0}snd.bonk();floater('Капитан устал…',P.clone().add(new THREE.Vector3(0,4,0)),'#7a5ab8')}ui()}
 function knock(w,v,word,col){w.st=2;earn(w.roam?12:w.big?30:w.kind==='boss'?15:2,w.g.position);if(w.roam){w.hp=0;S.chased++;S.roamLvl++;banner('Лекс-Мех отступает!','«Я вернусь — и буду сильнее!»');ui();return}if(w.big){w.hp=0;S.chased++;banner(w.name+' повержен!','город снова в безопасности');if(w.kind==='mozg'){for(const b of blds)if(b.stolen){b.stolen=false;b.meshes.forEach(m=>m.visible=true);b.lift=24;b.back=true;S.stolen--}cancelSteal(false)}ui();return}w.v.copy(v).normalize().multiplyScalar(14);w.v.y=12;S.chased++;snd.poof();const c=w.g.position.clone().add(new THREE.Vector3(0,1,0));
@@ -480,7 +483,7 @@ function stepProps(dt){
     g.position.x=Math.max(-110,Math.min(110,g.position.x));g.position.z=Math.max(-120,Math.min(110,g.position.z));
     const sp=p.v.length();
     if(p.enemy){if(g.position.distanceTo(P)<p.rad+1.6){p.enemy=false;if(S.act.shield>0)floater('щит!',P,'#2a6f8f');else hurt(12,'Брошенная машина')}if(p.rest)p.enemy=false}
-    if(sp>5&&!p.enemy)for(const w of witches){if(w.st===2)continue;if(w.g.position.distanceTo(g.position)<p.rad+w.hr*.65){hit(w,Math.round(2*p.mass),p.v,'бум!','#2a6f8f');p.v.multiplyScalar(.5)}}
+    if(sp>5&&!p.enemy)for(const w of witches){if(w.st===2)continue;if(w.g.position.distanceTo(g.position)<p.rad+w.hr*.65){hit(w,DMG.throw(p.mass),p.v,'Бросок','#8a5a2a');p.v.multiplyScalar(.5)}}
     // knock resting props
     if(sp>6)for(const q of props){if(q===p||q.held||q.g.position.distanceTo(g.position)>p.rad+q.rad)continue;q.rest=false;q.v.add(p.v.clone().multiplyScalar(.5/q.mass)).add(new THREE.Vector3(0,3,0));q.av.set(Math.random()*3,Math.random()*3,0);p.v.multiplyScalar(.6)}}}
 
@@ -553,7 +556,7 @@ function play(dt){
     if(w.st===0){w.sh-=dt;const dd=g.position.distanceTo(P);if(w.sh<=0&&dd<45&&dd>5){if(w.kind==='drone'){w.sh=3;eshot(g.position.clone(),P,{col:'#ff3a3a',sp:30,dmg:6,label:'Лазер дрона',r:.25})}else{w.sh=w.kind==='boss'?3:5+Math.random()*2;eshot(g.position.clone().add(new THREE.Vector3(0,1.6,0)),P,{col:'#c060ff',sp:9,dmg:w.kind==='boss'?12:8,label:'Заклятие',home:.6})}}}
     if(w.st===0){const to=P.clone().sub(g.position),d=to.length()||1;to.multiplyScalar(sp/d);to.y*=.7;w.v.lerp(to,1-Math.exp(-1.3*dt));
       if(w.t>10&&w.kind==='witch')w.st=1;
-      if(d<(w.kind==='boss'?4.5:2.6)){if(S.act.shield>0||S.act.speed>0){hit(w,S.act.speed>0?2:1,g.position.clone().sub(P),'бац!','#2a6f8f');continue}if(carry&&S.score<5&&w.kind!=='drone'){carry=false;const m=makeGift(1);m.position.copy(P);scene.add(m);
+      if(d<(w.kind==='boss'?4.5:2.6)){if(S.act.shield>0||S.act.speed>0){S.act.speed>0?hit(w,DMG.speed(),g.position.clone().sub(P),'Таран',DCOL.speed):hit(w,DMG.shield(),g.position.clone().sub(P),'Щит',DCOL.shield);continue}if(carry&&S.score<5&&w.kind!=='drone'){carry=false;const m=makeGift(1);m.position.copy(P);scene.add(m);
           const ring=new THREE.Mesh(new THREE.RingGeometry(1.2,1.8,24),new THREE.MeshBasicMaterial({color:'#fffdf8',transparent:true,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;scene.add(ring);
           drops={m,ring,v:new THREE.Vector3(w.v.x*.3,4,w.v.z*.3)};snd.bonk();floater('ой, подарок!',P.clone().add(new THREE.Vector3(0,2.5,0)),'#7a5ab8');ui()}
         w.st=1;w.t=0}}
@@ -567,7 +570,7 @@ function play(dt){
   for(const b of blasts){b.t+=dt;if(b.tgt&&b.tgt.st!==2){const to=b.tgt.g.position.clone().add(new THREE.Vector3(0,1,0)).sub(b.m.position).normalize().multiplyScalar(48);b.v.lerp(to,1-Math.exp(-6*dt))}
     b.m.position.addScaledVector(b.v,dt);b.m.children[1].rotation.x+=dt*12;b.m.scale.setScalar(1+Math.sin(time*30)*.1);
     if(Math.random()<.6)sparks(b.m.position,['#4ad0ff','#ffd27a'],1,1.5);
-    for(const w of witches){if(w.st===2)continue;const c=w.g.position.clone().add(new THREE.Vector3(0,1,0));if(c.distanceTo(b.m.position)<w.hr){hit(w,1+S.up.blast,b.v,'пуф!','#2a6f8f');b.t=9;break}}
+    for(const w of witches){if(w.st===2)continue;const c=w.g.position.clone().add(new THREE.Vector3(0,1,0));if(c.distanceTo(b.m.position)<w.hr){hit(w,DMG.blast(),b.v,'Удар',DCOL.blast);b.t=9;break}}
     for(const p of props){if(p.held||b.t>2)continue;if(p.g.position.distanceTo(b.m.position)<p.rad+.6){p.rest=false;p.v.add(b.v.clone().multiplyScalar(.3/p.mass)).add(new THREE.Vector3(0,6,0));p.av.set(2,3,1);sparks(b.m.position,['#4ad0ff','#fffdf8'],10,6);b.t=9;break}}
     if(b.m.position.y<heightAt(b.m.position.x,b.m.position.z)){sparks(b.m.position,['#4ad0ff','#fffdf8'],8,5);b.t=9}}
   blasts=blasts.filter(b=>{if(b.t<1.5)return true;scene.remove(b.m);return false});
@@ -584,7 +587,7 @@ laserM.add(new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,1,8,1,true).transla
 let laserTick=0;
 function usePower(id){if(S.phase!=='play'||S.tired>0||!S.owned.has(id)||(S.cd[id]||0)>0)return false;const pw=POWERS.find(p=>p.id===id);snd.unlock();S.cd[id]=pw.cd;hideHint();
   const d=camDir();
-  if(id==='ice'){snd.poof();let n=0;for(const w of witches){if(w.st===2)continue;const to=w.g.position.clone().sub(P),dd=to.length();if(dd<10||(dd<34&&to.normalize().dot(d)>.6)){w.frozen=4;w.ice.visible=true;n++;w.hp-=1;if(w.hp<=0){w.frozen=0;w.ice.visible=false;knock(w,d,'дзынь!','#4ad0ff')}}}
+  if(id==='ice'){snd.poof();let n=0;for(const w of witches){if(w.st===2)continue;const to=w.g.position.clone().sub(P),dd=to.length();if(dd<10||(dd<34&&to.normalize().dot(d)>.6)){w.frozen=4;w.ice.visible=true;n++;{const dm=DMG.ice();w.hp-=dm;floater('Лёд −'+dm,w.g.position.clone().add(new THREE.Vector3(0,w.big?5:2.6,0)),DCOL.ice);if(w.hp<=0){w.frozen=0;w.ice.visible=false;knock(w,d,'дзынь!',DCOL.ice)}}}}
     for(let i=0;i<24;i++){const m=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color:i%2?'#bfeaff':'#ffffff',transparent:true}));m.position.copy(P).y+=1.6;scene.add(m);particles.push({m,v:d.clone().multiplyScalar(18+Math.random()*10).add(new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).multiplyScalar(6)),life:.8,max:.8})}
     floater(n?'заморозка!':'❄',P.clone().add(new THREE.Vector3(0,3,0)),'#2a6f8f')}
   else{S.act[id]=pw.dur;if(id==='laser')snd.fire();else snd.catch()}
@@ -594,7 +597,7 @@ function stepPowers(dt){for(const k in S.cd)S.cd[k]=Math.max(0,S.cd[k]-dt);for(c
   laserM.visible=S.act.laser>0&&S.phase==='play';
   if(laserM.visible){let d=camDir();const o=P.clone().add(new THREE.Vector3(0,2.3,0));{let bd=.8;for(const w of witches){if(w.st===2)continue;const t=w.g.position.clone().add(new THREE.Vector3(0,1,0)).sub(o),l=t.length();if(l>70)continue;const k=t.normalize().dot(d);if(k>bd){bd=k;d=t}}}laserM.position.copy(o);laserM.lookAt(o.clone().add(d));laserM.scale.set(1,1,70);
     laserTick-=dt;if(laserTick<=0){laserTick=.25;for(const w of witches){if(w.st===2)continue;const c=w.g.position.clone().add(new THREE.Vector3(0,1,0)),t=c.clone().sub(o).dot(d);if(t<0||t>70)continue;
-      if(o.clone().addScaledVector(d,t).distanceTo(c)<w.hr*.8)hit(w,1,d,'жжж!','#d94a3a')}}}
+      if(o.clone().addScaledVector(d,t).distanceTo(c)<w.hr*.8)hit(w,DMG.laser(),d,'Лазер',DCOL.laser)}}}
   if(S.act.speed>0&&Math.random()<.5)sparks(P,['#ffffff','#bfeaff'],1,2)}
 function powersUI(){const el=$('powers');el.hidden=S.phase!=='play'||!POWERS.some(p=>S.owned.has(p.id));
   el.innerHTML=POWERS.filter(p=>S.owned.has(p.id)).map(p=>{const c=S.cd[p.id]||0;return`<button class="pw-btn${c>0?' cd':''}${S.act[p.id]>0?' act':''}" data-p="${p.id}"><i>${p.key}</i><span>${p.ico}</span>${c>0?Math.ceil(c)+' с':p.short}</button>`}).join('')}
@@ -607,10 +610,11 @@ const pvS=new THREE.Scene(),pvC=new THREE.PerspectiveCamera(35,200/220,.1,50);pv
 pvS.add(new THREE.HemisphereLight(0xffffff,0x8a8070,1.4));{const l=new THREE.DirectionalLight(0xffffff,2);l.position.set(3,5,4);pvS.add(l)}
 let pvHero=null,pvSkin=-1;
 function preview(i){if(pvSkin===i)return;pvSkin=i;if(pvHero)pvS.remove(pvHero);pvHero=makeHero(SKINS[i]);pvHero.userData.arms[1].piv.rotation.x=Math.PI;pvHero.userData.gift.visible=false;pvS.add(pvHero)}
-function openShop(){if(S.phase==='shop')return;S.prev=S.phase;steer=null;ptrs.clear();dragProp=null;joy.on=false;joy.x=joy.y=0;keys.clear();$('shop').scrollTop=0;S.phase='shop';preview(S.skin);shopUI();ui()}
+function openShop(){if(S.phase==='shop')return;S.prev=S.phase;steer=null;ptrs.clear();dragProp=null;joy.on=false;joy.x=joy.y=0;keys.clear();$('shop').scrollTop=0;document.querySelectorAll('.shop-tabs .tab').forEach(x=>x.classList.toggle('on',x.dataset.tab==='skins'));$('tabSkins').hidden=false;$('tabPowers').hidden=true;S.phase='shop';preview(S.skin);shopUI();ui()}
+function dmgText(id){return id==='ice'?DMG.ice():id==='laser'?DMG.laser()+' за тик (×4 в секунду)':id==='speed'?DMG.speed()+' за таран':DMG.shield()+' толчок, отражение: урон снаряда +'+DMG.shield()}
 function shopUI(){$('shopStars').textContent=S.stars;
-  $('shopPowers').innerHTML=POWERS.map(p=>{const own=S.owned.has(p.id);return`<div class="item"><span class="ico">${p.ico}</span><span class="nm">${p.name} <small>${p.d} · клавиша ${p.key}</small></span>${own?'<button disabled>Есть</button>':`<button data-buy="${p.id}" ${S.stars<p.price?'disabled':''}>${p.price} ⭐</button>`}</div>`}).join('')+
-    UPS.map(u=>{const lv=S.up[u.id],pr=u.prices[lv];return`<div class="item"><span class="ico">${u.ico}</span><span class="nm">${u.name} ${lv}/3 <small>${u.d}</small></span>${pr==null?'<button disabled>Макс.</button>':`<button data-up="${u.id}" ${S.stars<pr?'disabled':''}>${pr} ⭐</button>`}</div>`}).join('');
+  $('shopPowers').innerHTML=POWERS.map(p=>{const own=S.owned.has(p.id);return`<div class="item"><span class="ico">${p.ico}</span><span class="nm">${p.name} <small>${p.d} · <b style="color:${DCOL[p.id]}">урон ${dmgText(p.id)}</b> · клавиша ${p.key}</small></span>${own?'<button disabled>Есть</button>':`<button data-buy="${p.id}" ${S.stars<p.price?'disabled':''}>${p.price} ⭐</button>`}</div>`}).join('')+
+    UPS.map(u=>{const lv=S.up[u.id],pr=u.prices[lv];return`<div class="item"><span class="ico">${u.ico}</span><span class="nm">${u.name} ${lv}/3 <small>${u.d}${u.id==='blast'?` · сейчас: Удар −${DMG.blast()}, бросок −${DMG.throw(2)}`:''}</small></span>${pr==null?'<button disabled>Макс.</button>':`<button data-up="${u.id}" ${S.stars<pr?'disabled':''}>${pr} ⭐</button>`}</div>`}).join('');
   $('shopSkins').innerHTML=SKINS.map((k,i)=>{const own=S.owned.has('skin'+i),on=S.skin===i;return`<div class="item" data-pv="${i}"><span class="sw" style="background:${k.suit}"></span><span class="sw" style="background:${k.cape}"></span><span class="nm">${k.name}<small>${k.d}</small></span>${
     !own?`<button data-skin="${i}" ${S.stars<k.price?'disabled':''}>${k.price} ⭐</button>`:on?(i?`<button class="alt" data-off="1">Снять</button>`:'<button disabled>Надет</button>'):`<button class="alt" data-wear="${i}">Надеть</button>`}</div>`}).join('')}
 {const sh=document.getElementById('shop');['pointerdown','pointermove','pointerup','touchstart','wheel'].forEach(t=>sh.addEventListener(t,e=>e.stopPropagation(),{passive:true}))}
@@ -664,16 +668,16 @@ function stepTraffic(dt){for(const p of traffic){const t=p.traffic;if(!t)continu
 let roamer=null;
 function stepRoamer(dt){if(S.phase!=='play')return;
   if(roamer&&S.bossFight&&roamer.st!==2){roamer.st=2;roamer.retreat=true}
-  if(!roamer&&!S.bossFight&&!S.bossDone){S.roamT-=dt;if(S.roamT<=0){const vl=makeVillain('lex');vl.big=true;vl.roam=true;vl.name='Доктор Лекс-Мех';vl.max=vl.hp=10+6*S.roamLvl+2*S.round;vl.at={a:3,b:12,c:0};
+  if(!roamer&&!S.bossFight&&!S.bossDone){S.roamT-=dt;if(S.roamT<=0){const vl=makeVillain('lex');vl.big=true;vl.roam=true;vl.name='Доктор Лекс-Мех';vl.max=vl.hp=20+12*S.roamLvl+3*S.round;vl.at={a:3,b:12,c:0};
       vl.g.scale.setScalar(1.2);vl.g.position.set(P.x-40,P.y+18,P.z+30);scene.add(vl.g);witches.push(Object.assign(vl,{v:new THREE.Vector3(),st:0,t:0,ph:0,spin:0}));roamer=vl;
       banner('Доктор Лекс-Мех на патруле!',S.roamLvl?'вернулся сильнее — уровень '+(S.roamLvl+1):'бьёт только суперсилами: сферы и дроны');snd.bonk()}}
   if(roamer&&roamer.gone){roamer=null;S.roamT=45}}
 
 // ---------- v3: original bosses, villain projectiles, citizens, rescue %, walking ----------
 const BOSSES=[
-  {kind:'lex',name:'Доктор Лекс-Мех',sub:'лысый гений в зелёно-фиолетовом мехе: самонаводящиеся сферы и дроны',hp:24},
-  {kind:'mozg',name:'Мозгобот',sub:'зелёный андроид на корабле-черепе: луч-похититель крадёт здания — бей по кораблю!',hp:30},
-  {kind:'grom',name:'Громозавр',sub:'каменный громила: ударная волна и летящие машины',hp:36}];
+  {kind:'lex',name:'Доктор Лекс-Мех',sub:'лысый гений в зелёно-фиолетовом мехе: самонаводящиеся сферы и дроны',hp:60},
+  {kind:'mozg',name:'Мозгобот',sub:'зелёный андроид на корабле-черепе: луч-похититель крадёт здания — бей по кораблю!',hp:75},
+  {kind:'grom',name:'Громозавр',sub:'каменный громила: ударная волна и летящие машины',hp:90}];
 function makeLex(){const g=new THREE.Group(),G='#3a8a4a',V='#6a3a9a';
   g.add(mesh(box,G,2.6,2.2,1.8,0,0,0));g.add(mesh(box,V,2.8,.5,2,0,.9,0));g.add(mesh(box,V,1.2,1.2,.2,0,0,.95));
   g.add(mesh(sphere,M('#ffe08a',{emissive:'#ffb000',emissiveIntensity:1}),.35,.35,.1,0,0,1.06,false));
@@ -696,7 +700,7 @@ function makeGrom(){const g=new THREE.Group(),R='#7a6a5a',R2='#5a4c40',dod=new T
     g.add(mesh(dod,R2,.9,1.6,.9,2.6*s,5,0));g.add(mesh(dod,R,1.1,1.1,1.1,2.9*s,3.2,.4));g.add(mesh(dod,R2,1,2,1,1*s,1.2,0))}
   for(let i=0;i<5;i++)g.add(mesh(cone,'#9a8a7a',.4,1,.4,(i-2)*.6,6.6,-1.4));
   g.scale.setScalar(1.25);return g}
-Object.assign(VIL,{lex:{hp:24,dmg:0,h:8,num:true},mozg:{hp:30,dmg:0,h:7.5,num:true},grom:{hp:36,dmg:0,h:12.5,num:true}});
+Object.assign(VIL,{lex:{hp:60,dmg:0,h:8,num:true},mozg:{hp:75,dmg:0,h:7.5,num:true},grom:{hp:90,dmg:0,h:12.5,num:true}});
 let eproj=[],waves=[],citizens=[],blds=[],beamM=null,steal=null,bossW=null;
 function eshot(from,to,o){const d=to.clone().sub(from).normalize();const m=new THREE.Mesh(new THREE.SphereGeometry(o.r||.45,12,8),new THREE.MeshBasicMaterial({color:o.col}));
   m.add(new THREE.Mesh(new THREE.SphereGeometry((o.r||.45)*2,12,8),new THREE.MeshBasicMaterial({color:o.col,transparent:true,opacity:.3,depthWrite:false})));
@@ -741,7 +745,8 @@ function stepV3(dt){
   // villain projectiles (the only way villains deal damage)
   for(const e of eproj){e.t+=dt;if(e.home){const want=P.clone().add(new THREE.Vector3(0,.5,0)).sub(e.m.position).normalize().multiplyScalar(e.sp);e.v.lerp(want,1-Math.exp(-e.home*dt))}
     e.m.position.addScaledVector(e.v,dt);if(Math.random()<.3)sparks(e.m.position,[e.col],1,1);
-    if(e.m.position.distanceTo(P)<1.9){e.t=99;if(S.act.shield>0)floater('щит!',P.clone().add(new THREE.Vector3(0,3,0)),'#2a6f8f');else hurt(e.dmg,e.label);sparks(P,[e.col,'#ffffff'],10,6)}
+    if(!e.refl&&e.m.position.distanceTo(P)<(S.act.shield>0?2.8:1.9)){if(S.act.shield>0){e.refl=true;e.home=0;e.t=4;e.v.negate().multiplyScalar(1.4);floater('Отражение!',P.clone().add(new THREE.Vector3(0,3,0)),DCOL.reflect);snd.catch()}else{e.t=99;hurt(e.dmg,e.label)}sparks(P,[e.col,'#ffffff'],10,6)}
+    if(e.refl)for(const w of witches){if(w.st===2)continue;if(w.g.position.distanceTo(e.m.position)<w.hr){hit(w,DMG.shield()+e.dmg,e.v,'Отражение',DCOL.reflect);e.t=99;break}}
     for(const b of blasts)if(b.m.position.distanceTo(e.m.position)<1.8){e.t=99;sparks(e.m.position,[e.col,'#4ad0ff'],8,6)}
     if(e.m.position.y<heightAt(e.m.position.x,e.m.position.z))e.t=99}
   eproj=eproj.filter(e=>{if(e.t<7)return true;scene.remove(e.m);return false});
@@ -810,6 +815,7 @@ $('menuBtn').onclick=toMenu;$('menuBtn2').onclick=toMenu;
 $('pauseBtn').onclick=()=>{if(S.phase==='play'){S.phase='pause';ui()}};
 $('resumeBtn').onclick=()=>{S.phase='play';ui()};
 const toggleMute=()=>{S.muted=!S.muted;snd.setMuted(S.muted);if(!S.muted){snd.unlock();snd.tap()}save();ui()};
+$('shopHud').onclick=()=>{if(S.phase!=='play')return;snd.tap();S.phase='pause';ui();openShop()};
 $('shopBtn').onclick=()=>{snd.unlock();snd.tap();openShop()};$('shopBtn2').onclick=()=>{snd.tap();openShop()};
 $('muteBtn').onclick=toggleMute;$('muteBtn2').onclick=toggleMute;
 $('fireBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fire()});

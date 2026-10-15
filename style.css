@@ -72,3 +72,4 @@ html,body{overflow:hidden;position:fixed;inset:0;overscroll-behavior:none}
 .skins{grid-template-columns:1fr}
 #shop button{touch-action:manipulation}
 .hint{left:7rem;right:13rem;font-size:.85rem;border-radius:1rem}@media (max-width:700px){.hint{left:.5rem;right:.5rem;bottom:9rem}}
+.btn-shop{background:#2a6f8f;color:#fff;font-size:1.05rem;min-height:3rem;box-shadow:0 6px 16px #2a6f8f55}.btn-shop:active{background:#1d5068}
